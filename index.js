@@ -72,24 +72,24 @@ async function run() {
     })
 
     //update
-    // app.put('/update/:id', async(req, res)=> {
-    //   const id = req.params.id;
-    //   const filter = {_id: new ObjectId(id)}
-    //   const updateCart = req.body;
-    //   const options = {upsert: true}
-    //   const cart = {
-    //     $set: {
-    //       pname: updateCart.pname,
-    //       brand: updateCart.brand,
-    //       query: updateCart.query,
-    //       image: updateCart.image,
-    //       count: updateCart.count,
-    //       boycott: updateCart.boycott 
-    //     }
-    //   }
-    //   const result = await AssElevenCollenction.updateOne(filter, cart, options)
-    //   res.send(result)
-    // })
+    app.put('/update/:id', async(req, res)=> {
+      const id = req.params.id;
+      const filter = {_id: new ObjectId(id)}
+      const updateCart = req.body;
+      const options = {upsert: true}
+      const cart = {
+        $set: {
+          pname: updateCart.pname,
+          brand: updateCart.brand,
+          query: updateCart.query,
+          image: updateCart.image,
+          count: updateCart.count,
+          boycott: updateCart.boycott 
+        }
+      }
+      const result = await AssElevenCollenction.updateOne(filter, cart, options)
+      res.send(result)
+    })
 
     // await client.db("admin").command({ ping: 1 });
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
