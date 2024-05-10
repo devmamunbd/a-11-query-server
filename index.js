@@ -29,8 +29,14 @@ async function run() {
     // await client.connect();
     // Send a ping to confirm a successful connection
 
+    const AssElevenCollenction = client.db('AssEleven').collection('Eleven')
 
 
+    app.post('/addquerie', async(req, res)=> {
+      const query = req.body;
+      const result = await AssElevenCollenction.insertOne(query)
+      res.send(result)
+    })
 
 
 
