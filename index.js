@@ -47,12 +47,12 @@ async function run() {
     })
 
     //details
-    // app.get('/details/:id', async(req, res)=> {
-    //   const id = req.params.id;
-    //   const query = {_id: new ObjectId(id)}
-    //   const result = await AssElevenCollenction.findOne(query)
-    //   res.send(result)
-    // })
+    app.get('/details/:id', async(req, res)=> {
+      const id = req.params.id;
+      const query = {_id: new ObjectId(id)}
+      const result = await AssElevenCollenction.findOne(query)
+      res.send(result)
+    })
 
 
 
