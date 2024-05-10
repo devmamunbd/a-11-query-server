@@ -3,7 +3,7 @@ const cors = require('cors')
 const app = express()
 require('dotenv').config()
 const port = process.env.PORT || 9000
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 
 
 
@@ -32,13 +32,27 @@ async function run() {
     const AssElevenCollenction = client.db('AssEleven').collection('Eleven')
 
 
+    // post queries item
     app.post('/addquerie', async(req, res)=> {
       const query = req.body;
       const result = await AssElevenCollenction.insertOne(query)
       res.send(result)
     })
 
+    // get queries item
+    app.get('/queries/:email', async(req, res)=> {
+      const email = req.params.email
+      const result = await AssElevenCollenction.find({email}).toArray()
+      res.send(result)
+    })
 
+    //details
+    // app.get('/details/:id', async(req, res)=> {
+    //   const id = req.params.id;
+    //   const query = {_id: new ObjectId(id)}
+    //   const result = await AssElevenCollenction.findOne(query)
+    //   res.send(result)
+    // })
 
 
 
