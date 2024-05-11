@@ -31,12 +31,20 @@ async function run() {
     // Send a ping to confirm a successful connection
 
     const AssElevenCollenction = client.db('AssEleven').collection('Eleven')
+    const RecoCollenction = client.db('AssEleven').collection('Recomen')
 
 
     // post queries item
     app.post('/addquerie', async(req, res)=> {
       const query = req.body;
       const result = await AssElevenCollenction.insertOne(query)
+      res.send(result)
+    })
+
+    // reco post
+    app.post('/addreco', async(req, res)=> {
+      const query = req.body;
+      const result = await RecoCollenction.insertOne(query)
       res.send(result)
     })
 
@@ -97,6 +105,18 @@ async function run() {
       const result = await cursor.toArray()
       res.send(result)
     })
+
+
+    // queries
+    app.get('/queries', async(req, res)=> {
+      const cursor = AssElevenCollenction.find()
+      const result = await cursor.toArray()
+      res.send(result)
+    })
+
+
+
+
 
     // await client.db("admin").command({ ping: 1 });
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
