@@ -128,6 +128,13 @@ async function run() {
       res.send(result)
     })
 
+    // reco for me
+    app.get('/recoforme/:RecommenderEmail', async(req, res)=> {
+      const RecommenderEmail = req.params.RecommenderEmail;
+      const result = await RecoCollenction.find({RecommenderEmail}).toArray()
+      res.send(result)
+    })
+
     // reco delete
     app.delete('/recodelete/:id', async(req, res) => {
       const id = req.params.id;
