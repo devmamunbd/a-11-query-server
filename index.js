@@ -1,16 +1,17 @@
 const express = require('express')
 const cors = require('cors')
 const app = express()
+const jwt = require('jsonwebtoken')
+const cookiParser = require('cookie-parser')
 require('dotenv').config()
 const port = process.env.PORT || 9000
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
-const { count } = require('console')
 
 
 
 app.use(cors())
 app.use(express.json())
-
+app.use(cookiParser())
 
 
 const uri = `mongodb+srv://${process.env.AS_USER}:${process.env.AS_PASS}@cluster0.lskduub.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
@@ -32,6 +33,11 @@ async function run() {
 
     const AssElevenCollenction = client.db('AssEleven').collection('Eleven')
     const RecoCollenction = client.db('AssEleven').collection('Recomen')
+
+    //JWT
+    // app.post('/jwt', async(req, res)=> {
+
+    // })
 
 
     // post queries item
@@ -115,7 +121,12 @@ async function run() {
     })
 
 
-
+    // my reco
+    app.get('/myreco/:RecommenderEmail', async(req, res)=> {
+      const RecommenderEmail = req.params.RecommenderEmail;
+      const result = await RecoCollenction.find({RecommenderEmail}).toArray()
+      res.send(result)
+    })
 
 
     // await client.db("admin").command({ ping: 1 });
