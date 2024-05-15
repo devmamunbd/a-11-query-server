@@ -9,7 +9,15 @@ const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 
 
 
-app.use(cors())
+app.use(cors({
+  origin: ['http://localhost:5173',
+   'http://localhost:5174',
+   'http://localhost:5175',
+    "https://assignment-eleven-1cdbf.web.app",
+    "https://assignment-eleven-1cdbf.firebaseapp.com"
+  ],
+  credentials: true
+}))
 app.use(express.json())
 app.use(cookiParser())
 
@@ -25,6 +33,29 @@ const client = new MongoClient(uri, {
   }
 });
 
+
+//middleware 
+const verifyToken = (req, res, next)=> {
+  const token = req?.cookies?.token;
+  // console.log("middlware token", token)
+  if (!token) {
+    return res.status(401).send({message: "Unauthorized access"})
+  }
+  jwt.verify(token, process.env.USER_SECRET_TOKEN, (err, decoded) => {
+      if (err) {
+        return res.status(401).send({message: "Unauthorized access"})
+      }
+      req.user = decoded;
+      next()
+  })
+}
+
+const cookieOptions = {
+  httpOnly: true,
+  sameSite: process.env.NODE_ENV === "production" ? 'none' : 'strict',
+  secure: process.env.NODE_ENV === "production" ? true : false,
+}
+
 async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
@@ -35,14 +66,26 @@ async function run() {
     const RecoCollenction = client.db('AssEleven').collection('Recomen')
 
     //JWT
-    // app.post('/jwt', async(req, res)=> {
+    app.post('/jwt', async(req, res)=> {
+        const user = req.body;
+        const token = jwt.sign(user, process.env.USER_SECRET_TOKEN, {expiresIn: "7d"})
 
-    // })
+        res.cookie('token', token, cookieOptions).send({ success: true })
+      
+    })
+
+    // cookie logout
+    app.post('/logout', async(req, res)=> {
+      const user = req.body;
+      console.log('logout', user)
+      res.clearCookie('token', {...cookieOptions, maxAge: 0}).send({success: true})
+    })
 
 
     // post queries item
     app.post('/addquerie', async(req, res)=> {
       const query = req.body;
+      // console.log('add cookies', req.cookies)
       const result = await AssElevenCollenction.insertOne(query)
       res.send(result)
     })
@@ -55,8 +98,12 @@ async function run() {
     })
 
     // get queries item
-    app.get('/queries/:email', async(req, res)=> {
-      const email = req.params.email
+    app.get('/queries/:email', verifyToken, async(req, res)=> {
+      const email = req.params.email;
+      // console.log('owner info', req.user)
+      if (req.user.email !== req.params.email) {
+        return res.status(403).send({message: 'forbidden access'})
+      }
       const result = await AssElevenCollenction.find({email}).toArray()
       res.send(result)
     })
@@ -120,6 +167,13 @@ async function run() {
       res.send(result)
     })
 
+    //comment
+    app.get('/commend/:id', async(req, res)=> {
+      const id = req.params.id;
+      const filter = {queryId: req.params.id}
+      const result = await RecoCollenction.find(filter).toArray()
+      res.send(result)
+    })
 
     // my reco
     app.get('/myreco/:RecommenderEmail', async(req, res)=> {
@@ -142,6 +196,36 @@ async function run() {
       const result = await RecoCollenction.deleteOne(query)
       res.send(result)
     })
+
+    // pagination
+
+    // all-queries for pagination
+    app.get('/all-queries', async(req, res)=> {
+      const size = parseInt(req.query.size);
+      const page = parseInt(req.query.page) - 1;
+      const search = req.query.search;
+
+      let query = {
+        pname: { $regex: search, $options: 'i' }
+      }
+
+      const result = await AssElevenCollenction.find(query).skip(page * size).limit(size).toArray()
+      res.send(result)
+    })
+
+
+    // queris count
+    app.get('/queries-count', async(req, res)=> {
+      const search = req.query.search;
+
+      let query = {
+        pname: { $regex: search, $options: 'i' }
+      }
+      
+      const count = await AssElevenCollenction.countDocuments(query)
+      res.send({count})
+    })
+
 
     // await client.db("admin").command({ ping: 1 });
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
