@@ -64,6 +64,23 @@ async function run() {
 
     const AssElevenCollenction = client.db('AssEleven').collection('Eleven')
     const RecoCollenction = client.db('AssEleven').collection('Recomen')
+    const usersCollenction = client.db('AssEleven').collection('users')
+
+
+
+    //user post
+    app.post('/users', async(req,res)=> {
+      const query = req.body
+      const result = await usersCollenction.insertOne(query)
+      res.send(result)
+    })
+
+    //all user
+    app.get('/users', async(req, res)=> {
+      // const email = req.params.email;
+      const result = await usersCollenction.find().toArray()
+      res.send(result)
+    })
 
     //JWT
     app.post('/jwt', async(req, res)=> {
